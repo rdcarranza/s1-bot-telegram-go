@@ -23,7 +23,7 @@ func Iniciar() {
 	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer cancel()
+	defer cancel() //esta instrucción especifica la función que se ejecutará al finalizar.
 
 	opts := []bot.Option{
 		bot.WithDefaultHandler(handler),
@@ -52,8 +52,9 @@ func Iniciar() {
 	}
 	fmt.Printf("Bot: %+v\n", me.Username)
 
-	b.Start(ctx)
 	fmt.Println("Bot inicializado!")
+	b.Start(ctx)
+
 }
 
 func handler(ctx context.Context, b *bot.Bot, update *models.Update) {
