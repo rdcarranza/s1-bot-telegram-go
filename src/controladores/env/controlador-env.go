@@ -82,7 +82,8 @@ func GetEnv(v string, dir_env string) (string, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.Contains(line, variable) {
-			fmt.Printf("Se encontró la variable '%s' en la línea: %s\n", variable, line)
+			//fmt.Printf("Se encontró la variable '%s' en la línea: %s\n", variable, line)
+			fmt.Printf("Se encontró la variable '%s'", variable)
 			linea = line
 		}
 	}
