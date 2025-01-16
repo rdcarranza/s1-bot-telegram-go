@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"time"
 
+	controladores_api "github.com/rdcarranza/s1-bot-telegram-go/cmd/api/controladores"
 	"github.com/rdcarranza/s1-bot-telegram-go/src/controladores/env"
 
 	"github.com/go-telegram/bot"
@@ -59,9 +60,24 @@ func Iniciar() {
 
 func handler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	if update.Message != nil {
-		b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: update.Message.Chat.ID,
-			Text:   update.Message.Text,
-		})
+
+		ca := controladores_api.Controlador_comandosOsApi(update.Message.Text)
+		res, err := ca.EjecutarComando()
+		if err != nil {
+			err.Error()
+		}
+
+		if res != "" {
+			b.SendMessage(ctx, &bot.SendMessageParams{
+				ChatID: update.Message.Chat.ID,
+				Text:   res,
+			})
+		}
+		/*
+			b.SendMessage(ctx, &bot.SendMessageParams{
+				ChatID: update.Message.Chat.ID,
+				Text:   update.Message.Text,
+			})
+		*/
 	}
 }

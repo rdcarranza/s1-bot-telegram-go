@@ -9,7 +9,7 @@ import (
 type ComandoOsServ struct {
 }
 
-func servicios_ComandoOs() puertos.ComandoOS {
+func Servicios_ComandoOs() puertos.ComandoOS {
 	return &ComandoOsServ{}
 }
 
