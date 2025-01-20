@@ -8,22 +8,22 @@ import (
 	controlador_error "github.com/rdcarranza/s1-bot-telegram-go/src/controladores/error"
 )
 
-type controlador_comandosOsApi struct {
+type Ctrl_comandosOsApi struct {
 	cOsApiServ nucleo_api.ComandoOs_api_servicios
 }
 
-func Controlador_comandosOsApi(ingreso string) *controlador_comandosOsApi {
+func Controlador_comandosOsApi(ingreso string) *Ctrl_comandosOsApi {
 	//if lista vacia()
 	cargarListaComando()
 	com := isComando(ingreso)
 	if com != "" {
 		cas := nucleo_api.NuevoComandoOs_api_servicio(com)
-		return &controlador_comandosOsApi{cOsApiServ: *cas}
+		return &Ctrl_comandosOsApi{cOsApiServ: *cas}
 	}
 	return nil
 }
 
-func (contCAS *controlador_comandosOsApi) EjecutarComando() (string, error) {
+func (contCAS *Ctrl_comandosOsApi) EjecutarComando() (string, error) {
 
 	if !contCAS.cOsApiServ.Estado() {
 		error1 := controlador_error.NuevoControladorError()
