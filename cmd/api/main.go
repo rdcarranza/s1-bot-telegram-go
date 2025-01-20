@@ -3,12 +3,10 @@ package api
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"os"
-	"os/exec"
 	"os/signal"
+	"strings"
 	"time"
 
 	controladores_api "github.com/rdcarranza/s1-bot-telegram-go/cmd/api/controladores"
@@ -79,36 +77,21 @@ func handler(ctx context.Context, b *bot.Bot, update *models.Update) {
 			//url:="https://api.telegram.org/file/bot<token>/"
 			//https://api.telegram.org/file/bot11111:xxxxxxxxxxxxxxxxxxxxxx/voice/file_0.oga
 
-			// Abre un archivo local para guardar la voz
-			outFile, err := os.Create("voice.ogg")
+			err := controladores_api.Controlador_comandosOsApi_voz(url)
 			if err != nil {
-				log.Fatal("Error al crear archivo local: ", err)
+				log.Fatal("Error Controlador_comandoOsApi_voz():")
 			}
-			defer outFile.Close()
-
-			// Descarga el archivo
-			response, err := http.Get(url)
-			if err != nil {
-				log.Fatal("Error al descargar el archivo de voz: ", err)
-			}
-			defer response.Body.Close()
-
-			_, err = io.Copy(outFile, response.Body)
-			if err != nil {
-				log.Fatal("Error al guardando el archivo de voz: ", err)
-			}
-
-			exec.Command("ffplay", "-nodisp", "-autoexit", "-volume", "192", "voice.ogg").Run()
-			//exec.Command("cvlc", "--intf", "dummy", "--volume", "384", "--play-and-exit", "voice.ogg").Run()
-			fmt.Println("Reproduciendo mensaje de voz!")
-			/*
-				f,_:=b.GetFile(fileID)
-				fmt.Println("URL de prueba: "+f.FilePath)
-			*/
 		}
 
 		if update.Message.Text != "" {
-			ca = controladores_api.Controlador_comandosOsApi(update.Message.Text)
+
+			mensaje := update.Message.Text
+
+			if strings.HasPrefix(mensaje, "/") {
+				//selector de comandos
+			}
+
+			ca = controladores_api.Controlador_comandosOsApi(mensaje)
 			res, err := ca.EjecutarComando()
 			if err != nil {
 				err.Error()

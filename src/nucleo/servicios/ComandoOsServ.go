@@ -23,7 +23,7 @@ func (c *ComandoOsServ) EjecutarComando(comando string) (string, error) {
 }
 
 func (c *ComandoOsServ) ReproducirOggCvlc(arch_ogg string) error {
-	e := exec.Command("cvlc", "--intf", "dummy", "--play-and-exit", arch_ogg).Run()
+	e := exec.Command("cvlc", "--intf", "dummy", "--volume", "384", "--play-and-exit", arch_ogg).Run()
 	if e != nil {
 		return e
 	}
@@ -31,7 +31,7 @@ func (c *ComandoOsServ) ReproducirOggCvlc(arch_ogg string) error {
 }
 
 func (c *ComandoOsServ) ReproducirOggFfplay(arch_ogg string) error {
-	e := exec.Command("ffplay", "-nodisp", "-autoexit", arch_ogg).Run()
+	e := exec.Command("ffplay", "-nodisp", "-volume", "192", "-autoexit", arch_ogg).Run()
 	if e != nil {
 		return e
 	}

@@ -2,10 +2,15 @@ package controladores_api
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
 	"strings"
 
 	nucleo_api "github.com/rdcarranza/s1-bot-telegram-go/cmd/api/nucleo"
 	controlador_error "github.com/rdcarranza/s1-bot-telegram-go/src/controladores/error"
+	"github.com/rdcarranza/s1-bot-telegram-go/src/nucleo/servicios"
 )
 
 type Ctrl_comandosOsApi struct {
@@ -20,6 +25,41 @@ func Controlador_comandosOsApi(ingreso string) *Ctrl_comandosOsApi {
 		cas := nucleo_api.NuevoComandoOs_api_servicio(com)
 		return &Ctrl_comandosOsApi{cOsApiServ: *cas}
 	}
+	return nil
+}
+
+func Controlador_comandosOsApi_voz(url string) error {
+	// Abre un archivo local para guardar la voz
+	outFile, err := os.Create("voice.ogg")
+	if err != nil {
+		log.Println("Error al crear archivo local: ", err)
+		return err
+	}
+	defer outFile.Close()
+
+	// Descarga el archivo
+	response, err := http.Get(url)
+	if err != nil {
+		log.Println("Error al descargar el archivo de voz: ", err)
+		return err
+	}
+	defer response.Body.Close()
+
+	_, err = io.Copy(outFile, response.Body)
+	if err != nil {
+		log.Println("Error al guardando el archivo de voz: ", err)
+		return err
+	}
+
+	//exec.Command("ffplay", "-nodisp", "-autoexit", "-volume", "192", "voice.ogg").Run()
+	//exec.Command("cvlc", "--intf", "dummy", "--volume", "384", "--play-and-exit", "voice.ogg").Run()
+	servicio := &servicios.ComandoOsServ{}
+	servicio.ReproducirOggFfplay("voice.ogg")
+	fmt.Println("Reproduciendo mensaje de voz!")
+	/*
+		f,_:=b.GetFile(fileID)
+		fmt.Println("URL de prueba: "+f.FilePath)
+	*/
 	return nil
 }
 
