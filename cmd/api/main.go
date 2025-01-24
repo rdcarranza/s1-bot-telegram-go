@@ -16,6 +16,12 @@ import (
 	"github.com/go-telegram/bot/models"
 )
 
+/*
+Dependecias de software:
+-ffmpeg
+-espeak
+*/
+
 func Iniciar() {
 	fmt.Println("iniciando API...")
 	env_ := "./.env"
@@ -79,34 +85,49 @@ func handler(ctx context.Context, b *bot.Bot, update *models.Update) {
 
 			err := controladores_api.Controlador_comandosOsApi_voz(url)
 			if err != nil {
-				log.Fatal("Error Controlador_comandoOsApi_voz():")
+				log.Println("Error Controlador_comandoOsApi_voz():")
 			}
 		}
 
 		if update.Message.Text != "" {
 
 			mensaje := update.Message.Text
+			remitente := update.Message.From.FirstName
 
 			if strings.HasPrefix(mensaje, "/") {
 				//selector de comandos
-			}
+				err := controladores_api.Controlador_comandosOsApi_comando(mensaje, remitente)
+				if err != nil {
+					log.Println("Error Controlador_comandoOsApi_comando():", err)
+				}
+			} else {
 
-			ca = controladores_api.Controlador_comandosOsApi(mensaje)
-			res, err := ca.EjecutarComando()
-			if err != nil {
-				err.Error()
-			}
+				ca = controladores_api.Controlador_comandosOsApi(mensaje)
+				if ca != nil {
+					res, err := ca.EjecutarComando()
+					if err != nil {
+						log.Println("Error en Main-Api: handler() -> ca.EjecutarComando()", err.Error())
+					}
+					if res != "" {
+						b.SendMessage(ctx, &bot.SendMessageParams{
+							ChatID: update.Message.Chat.ID,
+							Text:   res,
+						})
+					}
+				} else {
+					//Echo - devuelve una copia del mensaje recibido.
+					b.SendMessage(ctx, &bot.SendMessageParams{
+						ChatID: update.Message.Chat.ID,
+						Text:   update.Message.Text,
+					})
+				}
 
-			if res != "" {
-				b.SendMessage(ctx, &bot.SendMessageParams{
-					ChatID: update.Message.Chat.ID,
-					Text:   res,
-				})
 			}
 
 		}
 
 		/*
+			//echo
 			b.SendMessage(ctx, &bot.SendMessageParams{
 				ChatID: update.Message.Chat.ID,
 				Text:   update.Message.Text,

@@ -18,14 +18,39 @@ type Ctrl_comandosOsApi struct {
 }
 
 func Controlador_comandosOsApi(ingreso string) *Ctrl_comandosOsApi {
-	//if lista vacia()
-	cargarListaComando()
+	if listaComandoVacia() {
+		cargarListaComando()
+	}
 	com := isComando(ingreso)
+	fmt.Println("comando: ", com)
 	if com != "" {
 		cas := nucleo_api.NuevoComandoOs_api_servicio(com)
 		return &Ctrl_comandosOsApi{cOsApiServ: *cas}
 	}
 	return nil
+}
+
+func Controlador_comandosOsApi_comando(ingreso string, remitente string) error {
+	ing := strings.Split(ingreso, " ")
+	if strings.HasPrefix(ing[0], "/") {
+		com := strings.ReplaceAll(ing[0], "/", "")
+		param := strings.ReplaceAll(ingreso, ing[0], "")
+		if remitente != "" {
+			param = "Mensaje de: " + remitente + " - " + param
+		}
+
+		err := selectorComando(com, param)
+		if err != nil {
+			return err
+		}
+
+		return nil
+
+	} else {
+		cerror := controlador_error.NuevoControladorError()
+		err := cerror.CargarControladorError("controlador-comandosOsApi", "Controlador_comandosOsApi_comando", "El ingreso no contiene un comando.")
+		return err
+	}
 }
 
 func Controlador_comandosOsApi_voz(url string) error {
@@ -91,6 +116,10 @@ type nodoComando struct {
 
 var ListaComandos []nodoComando
 
+func listaComandoVacia() bool {
+	return len(ListaComandos) == 0
+}
+
 func cargarListaComando() {
 	c1 := nodoComando{"ip", "ip a"}
 	c2 := nodoComando{"host", "hostnamectl status"}
@@ -112,9 +141,17 @@ func isComando(ingreso string) string {
 	ing := strings.Trim(ingreso, "")
 	fmt.Println("Ingreso limpio: " + ing)
 	com := buscarComando(ing)
-	if com != "" {
-		return com
-	} else {
-		return ""
+	return com
+}
+
+func selectorComando(comando string, parametros string) error {
+	servicio := &servicios.ComandoOsServ{}
+	switch comando {
+	case "leer":
+		return servicio.LecturaTexto(parametros)
+	default:
+		cer := controlador_error.NuevoControladorError()
+		return cer.CargarControladorError("controlador-comandosOsApi", "selectorComando", "El comando ingresado no es reconocido.")
 	}
+
 }
